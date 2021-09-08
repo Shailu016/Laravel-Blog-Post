@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Like;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
+use App\Events\PostCreated;
 
 use App\Mail\SendEmailMailable;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +25,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts= Post::all();
+        $posts= Cache::remember('posts', 60*60, function () {
+            
+            return Post::all();
+        });
         return view('post.index',compact('posts'));
     }
 
@@ -49,7 +55,7 @@ class PostController extends Controller
               'name'=>'required', 
               'excerpt'=>'required', 
               'body'=>'required',
-              'image'=>'mimes:jpg,png,jpeg,webp|max:5048'
+              'image'=>'mimes:jpg,png,jpeg,webp|max:50480'
              
             ]);
             if(isset($request->image)) {
@@ -61,15 +67,17 @@ class PostController extends Controller
             $posts->name = request('name');
             $posts->excerpt = request('excerpt');
             $posts->body = request('body');
+            $posts->user_id = auth()->user()->id;
             $posts->image_path = $imagePath ?? null;
             $posts->save();
+            
             $jobs = (new SendEmailJob())->delay(Carbon::now()->addseconds());
-
-
             dispatch($jobs);
-
-           
-            return redirect('/post');
+             
+            event(new PostCreated($posts));
+            
+       
+            return redirect('/post')->with('message', 'Post Added successfully!!');
 
     }
 
@@ -81,7 +89,9 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return view('post.show',compact('post'));
+        $users = User::where('id',$post->user_id)->first();
+        
+        return view('post.show',compact('post','users'));
     }
 
     /**
@@ -126,7 +136,8 @@ class PostController extends Controller
              if(File::exists($oldImagePath)) 
               {
                  File::delete($oldImagePath);
-               }
+              }
+
             $post->image_path = $imagePath;
         }
             $post->save();
@@ -164,6 +175,6 @@ class PostController extends Controller
             $user->likedPosts()->detach($post);
         }
        
-        return redirect()->back()->with('success', 'Post has been Deleted Succesfully!!'); ;
+        return redirect()->back()->with('success', 'Post has been Deleted Succesfully!!'); 
     }
 }

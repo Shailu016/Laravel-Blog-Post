@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Events\CommentCreated;
 
 
 class CommentController extends Controller
@@ -47,7 +48,7 @@ class CommentController extends Controller
         ]);
 
         
-        
+        event(new CommentCreated("you have added a public comment"));
 
         return back();
     }

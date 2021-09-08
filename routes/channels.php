@@ -19,3 +19,10 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel('testChannel', function ($user, $id) {
     return true;
 });
+Broadcast::channel('post', function ($user, $id) {
+    return true;
+});
+
+Broadcast::channel('like', function ($user, $id) {
+    return true;
+});

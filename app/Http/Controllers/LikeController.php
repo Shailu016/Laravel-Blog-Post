@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Like;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Events\LikeCreated;
 
 
 class LikeController extends Controller
@@ -22,10 +23,7 @@ class LikeController extends Controller
         }else{
             $like->delete();
         }
-
-        $count=Like::where('post_id',$post->id)->count();
-        
-
+        event(new LikeCreated("you have created new post"));
        return back();
     }
     

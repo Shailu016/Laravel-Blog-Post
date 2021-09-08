@@ -14,7 +14,7 @@
         "bootstrap": "^4.6.0",
         "jquery": "^3.6",
         "laravel-echo": "^1.11.2",
-        "laravel-mix": "^6.0.6",
+        "laravel-mix": "^6.0.29",
         "lodash": "^4.17.19",
         "popper.js": "^1.16.1",
         "postcss": "^8.1.14",
@@ -25,5 +25,8 @@
         "vue": "^2.6.12",
         "vue-loader": "^15.9.7",
         "vue-template-compiler": "^2.6.12"
+    },
+    "dependencies": {
+        "toastmejs": "^1.2.7"
     }
 }
